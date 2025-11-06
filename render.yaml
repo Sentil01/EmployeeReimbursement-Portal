@@ -1,7 +1,7 @@
 services:
   - type: web
     name: employee-reimbursement-portal
-    env: ruby
+    runtime: ruby
     plan: free
     buildCommand: "./bin/render-build.sh"
     startCommand: "bundle exec puma -C config/puma.rb"
