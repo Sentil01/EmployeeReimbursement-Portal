@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: employee-reimbursement-portal
+    env: ruby
+    plan: free
+    buildCommand: "./bin/render-build.sh"
+    startCommand: "bundle exec puma -C config/puma.rb"
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: RAILS_MASTER_KEY
+        sync: false
+    database:
+      name: employee_reimbursement_portal_db
+      plan: free
+      databaseName: employee_reimbursement_portal_production
+      user: employee_reimbursement_portal_user
+
