@@ -1,0 +1,55 @@
+<% content_for :title, "Employees" %>
+
+<div class="page-header">
+  <h1>Employees</h1>
+  <%= link_to "New Employee", new_employee_path, class: "btn btn-primary" %>
+</div>
+
+<% if @employees.any? %>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Designation</th>
+        <th>Department</th>
+        <th>Bills Count</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @employees.each do |employee| %>
+        <tr>
+          <td>
+            <div class="employee-name-cell">
+              <div class="employee-avatar-small">
+                <%= employee.first_name.first.upcase %>
+              </div>
+              <span><%= employee.full_name %></span>
+            </div>
+          </td>
+          <td><%= employee.email %></td>
+          <td><%= employee.designation %></td>
+          <td>
+            <span class="department-badge"><%= employee.department.name %></span>
+          </td>
+          <td>
+            <%= link_to employee.bills.count, bills_path, class: "stat-link" %>
+          </td>
+          <td>
+            <div class="action-buttons-inline">
+              <%= link_to "View", employee, class: "action-link" %>
+              <%= link_to "Edit", edit_employee_path(employee), class: "action-link" %>
+              <%= link_to "Delete", employee, data: { turbo_method: :delete, turbo_confirm: "Are you sure? This will also delete all associated bills." }, class: "action-link reject-link" %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <div class="empty-state">
+    <p>No employees found.</p>
+    <%= link_to "Create First Employee", new_employee_path, class: "btn btn-primary" %>
+  </div>
+<% end %>

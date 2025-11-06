@@ -1,0 +1,110 @@
+<div class="auth-page">
+  <div class="auth-container">
+    <h2>Sign up</h2>
+
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <div class="form-group">
+        <%= f.label :name %>
+        <%= f.text_field :name, autofocus: true, autocomplete: "name", required: true %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :email %>
+        <%= f.email_field :email, autofocus: true, autocomplete: "email", required: true %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :role %>
+        <%= f.select :role, options_for_select([['Employee', 'employee'], ['Admin', 'admin']], 'employee'), {}, { id: 'user_role', required: true } %>
+      </div>
+
+      <div id="employee_fields" style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid #6E8CFB;">
+        <div class="form-group">
+          <%= label_tag 'employee[first_name]', 'First Name *' %>
+          <%= text_field_tag 'employee[first_name]', nil, autocomplete: "given-name", id: 'employee_first_name' %>
+        </div>
+
+        <div class="form-group">
+          <%= label_tag 'employee[last_name]', 'Last Name *' %>
+          <%= text_field_tag 'employee[last_name]', nil, autocomplete: "family-name", id: 'employee_last_name' %>
+        </div>
+
+        <div class="form-group">
+          <%= label_tag 'employee[designation]', 'Designation *' %>
+          <%= text_field_tag 'employee[designation]', nil, id: 'employee_designation' %>
+        </div>
+
+        <div class="form-group">
+          <%= label_tag 'employee[department_id]', 'Department *' %>
+          <%= collection_select :employee, :department_id, @departments, :id, :name, { prompt: "Select Department" }, { id: 'employee_department_id' } %>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :password %>
+        <% if @minimum_password_length %>
+        <em>(<%= @minimum_password_length %> characters minimum)</em>
+        <% end %>
+        <%= f.password_field :password, autocomplete: "new-password", required: true %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :password_confirmation %>
+        <%= f.password_field :password_confirmation, autocomplete: "new-password", required: true %>
+      </div>
+
+      <div class="form-actions">
+        <%= f.submit "Sign up", class: "btn-primary" %>
+      </div>
+    <% end %>
+
+    <div class="auth-links">
+      <%= render "devise/shared/links" %>
+    </div>
+  </div>
+</div>
+
+<script>
+  function setupRoleToggle() {
+    const roleSelect = document.getElementById('user_role');
+    const employeeFields = document.getElementById('employee_fields');
+    const employeeFirstName = document.getElementById('employee_first_name');
+    const employeeLastName = document.getElementById('employee_last_name');
+    const employeeDesignation = document.getElementById('employee_designation');
+    const employeeDepartment = document.getElementById('employee_department_id');
+    
+    if (!roleSelect || !employeeFields) return;
+    
+    function toggleEmployeeFields() {
+      const isEmployee = roleSelect.value === 'employee';
+      
+      if (isEmployee) {
+        employeeFields.style.display = 'block';
+        if (employeeFirstName) employeeFirstName.setAttribute('required', 'required');
+        if (employeeLastName) employeeLastName.setAttribute('required', 'required');
+        if (employeeDesignation) employeeDesignation.setAttribute('required', 'required');
+        if (employeeDepartment) employeeDepartment.setAttribute('required', 'required');
+      } else {
+        employeeFields.style.display = 'none';
+        if (employeeFirstName) employeeFirstName.removeAttribute('required');
+        if (employeeLastName) employeeLastName.removeAttribute('required');
+        if (employeeDesignation) employeeDesignation.removeAttribute('required');
+        if (employeeDepartment) employeeDepartment.removeAttribute('required');
+      }
+    }
+    
+    roleSelect.addEventListener('change', toggleEmployeeFields);
+    roleSelect.onchange = toggleEmployeeFields;
+    toggleEmployeeFields();
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupRoleToggle);
+  } else {
+    setupRoleToggle();
+  }
+  
+  document.addEventListener('turbo:load', setupRoleToggle);
+</script>
