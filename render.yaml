@@ -3,7 +3,7 @@ services:
     name: employee-reimbursement-portal
     runtime: ruby
     plan: free
-    buildCommand: "./bin/render-build.sh"
+    buildCommand: "bundle install && RAILS_ENV=production bundle exec rails assets:precompile && RAILS_ENV=production bundle exec rails db:migrate"
     startCommand: "bundle exec puma -C config/puma.rb"
     envVars:
       - key: RAILS_ENV
