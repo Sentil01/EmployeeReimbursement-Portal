@@ -47,8 +47,6 @@ class DepartmentsController < ApplicationController
 
   def set_department
     @department = Department.find(params[:id])
-  rescue ActiveRecord::RecordNotFound
-    redirect_to departments_path, alert: 'Department not found.'
   end
 
   def department_params

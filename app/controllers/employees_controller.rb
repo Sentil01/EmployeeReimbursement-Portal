@@ -23,33 +23,20 @@ class EmployeesController < ApplicationController
     @departments = Department.all
   end
 
-  # POST /employees or /employees.json
   def create
     @employee = Employee.new(employee_params)
     @departments = Department.all
 
     if @employee.save
-      user = User.find_by(email: @employee.email)
-      temp_password = nil
-      
-      unless user
-        temp_password = SecureRandom.hex(8)
-        user = User.create!(
-          name: @employee.full_name,
-          email: @employee.email,
-          password: temp_password,
-          password_confirmation: temp_password,
-          role: 'employee'
-        )
-        @employee.update(user_id: user.id)
-        flash[:notice] = "Employee was successfully created. User account created. Temporary password: #{temp_password}"
-      else
-        if user.employee.nil?
-          @employee.update(user_id: user.id)
-          flash[:notice] = "Employee was successfully created and linked to existing user account."
+      result = @employee.create_user_account
+      if result[:user]
+        if result[:is_new]
+          flash[:notice] = "Employee was successfully created. User account created. Temporary password: #{result[:temp_password]}"
         else
-          flash[:alert] = "Employee was created, but email already has a user account linked to another employee."
+          flash[:notice] = "Employee was successfully created and linked to existing user account."
         end
+      else
+        flash[:alert] = "Employee was created, but failed to create user account: #{@employee.errors.full_messages.join(', ')}"
       end
       
       redirect_to @employee

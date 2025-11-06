@@ -6,14 +6,14 @@ class BillsController < ApplicationController
   def index
     if is_admin?
       @bills = Bill.includes(:employee).order(created_at: :desc)
-      @total_submitted = Bill.sum(:amount)
-      @total_approved = Bill.where(status: 'approved').sum(:amount)
+      @total_submitted = Bill.total_submitted
+      @total_approved = Bill.total_approved
     else
       @employee = current_user.employee
       if @employee
         @bills = @employee.bills.order(created_at: :desc)
-        @total_submitted = @employee.bills.sum(:amount)
-        @total_approved = @employee.bills.where(status: 'approved').sum(:amount)
+        @total_submitted = @employee.total_bills_amount
+        @total_approved = @employee.total_approved_amount
       else
         @bills = Bill.none
         @total_submitted = 0
@@ -60,55 +60,31 @@ class BillsController < ApplicationController
   end
 
   def approve
-    if @bill.status != 'pending'
-      redirect_to bills_path, alert: "This bill has already been processed."
-      return
-    end
-    
-    if @bill.update(status: 'approved')
-      redirect_to bills_path, notice: "Bill approved successfully."
-    else
-      redirect_to bills_path, alert: "Failed to approve bill."
-    end
+    @bill.approve!
+    redirect_to bills_path, notice: "Bill approved successfully."
+  rescue => e
+    redirect_to bills_path, alert: e.message
   end
 
   def reject
-    if @bill.status != 'pending'
-      redirect_to bills_path, alert: "This bill has already been processed."
-      return
-    end
-    
-    if @bill.update(status: 'rejected')
-      redirect_to bills_path, notice: "Bill rejected successfully."
-    else
-      redirect_to bills_path, alert: "Failed to reject bill."
-    end
+    @bill.reject!
+    redirect_to bills_path, notice: "Bill rejected successfully."
+  rescue => e
+    redirect_to bills_path, alert: e.message
   end
 
   def revoke_approval
-    if @bill.status != 'approved'
-      redirect_to bills_path, alert: "This bill is not approved."
-      return
-    end
-    
-    if @bill.update(status: 'pending')
-      redirect_to bills_path, notice: "Bill approval revoked successfully."
-    else
-      redirect_to bills_path, alert: "Failed to revoke approval."
-    end
+    @bill.revoke_approval!
+    redirect_to bills_path, notice: "Bill approval revoked successfully."
+  rescue => e
+    redirect_to bills_path, alert: e.message
   end
 
   def revoke_rejection
-    if @bill.status != 'rejected'
-      redirect_to bills_path, alert: "This bill is not rejected."
-      return
-    end
-    
-    if @bill.update(status: 'pending')
-      redirect_to bills_path, notice: "Bill rejection revoked successfully."
-    else
-      redirect_to bills_path, alert: "Failed to revoke rejection."
-    end
+    @bill.revoke_rejection!
+    redirect_to bills_path, notice: "Bill rejection revoked successfully."
+  rescue => e
+    redirect_to bills_path, alert: e.message
   end
 
   private

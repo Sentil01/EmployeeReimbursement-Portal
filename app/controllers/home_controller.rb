@@ -6,11 +6,11 @@ class HomeController < ApplicationController
       if is_admin?
         @total_employees = Employee.count
         @total_bills = Bill.count
-        @pending_bills = Bill.where(status: 'pending').count
-        @approved_bills = Bill.where(status: 'approved').count
-        @rejected_bills = Bill.where(status: 'rejected').count
-        @total_amount_pending = Bill.where(status: 'pending').sum(:amount)
-        @total_amount_approved = Bill.where(status: 'approved').sum(:amount)
+        @pending_bills = Bill.pending.count
+        @approved_bills = Bill.approved.count
+        @rejected_bills = Bill.rejected.count
+        @total_amount_pending = Bill.pending.sum(:amount)
+        @total_amount_approved = Bill.total_approved
         @recent_bills = Bill.includes(:employee).order(created_at: :desc).limit(5)
         @departments_count = Department.count
       else
