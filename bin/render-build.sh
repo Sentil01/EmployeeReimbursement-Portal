@@ -10,11 +10,10 @@ echo "Precompiling assets..."
 bundle exec rails assets:precompile
 
 echo "Running database migrations..."
-bundle exec rails db:migrate
-bundle exec rails db:migrate:primary
-bundle exec rails db:migrate:cache || echo "Cache migrations skipped"
-bundle exec rails db:migrate:queue || echo "Queue migrations skipped"
-bundle exec rails db:migrate:cable || echo "Cable migrations skipped"
+RAILS_ENV=production bundle exec rails db:migrate
+RAILS_ENV=production bundle exec rails db:migrate:cache || true
+RAILS_ENV=production bundle exec rails db:migrate:queue || true
+RAILS_ENV=production bundle exec rails db:migrate:cable || true
 
 echo "Build complete!"
 
