@@ -1,0 +1,40 @@
+<% content_for :title, "Submit Bill" %>
+
+<div class="page-header">
+  <h1>Submit Reimbursement Bill</h1>
+</div>
+
+<div class="form-container">
+  <%= form_with(model: @bill, url: bills_path) do |form| %>
+    <% if @bill.errors.any? %>
+      <div id="error_explanation">
+        <h2><%= pluralize(@bill.errors.count, "error") %> prohibited this bill from being saved:</h2>
+        <ul>
+          <% @bill.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="form-group">
+      <%= form.label :bill_type, "Bill Type" %>
+      <%= form.select :bill_type, options_for_select([['Food', 'food'], ['Travel', 'travel'], ['Others', 'others']], @bill.bill_type), { prompt: "Select Bill Type" }, { class: "form-control", required: true } %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :amount, "Amount ($)" %>
+      <%= form.number_field :amount, step: 0.01, min: 0.01, placeholder: "0.00", class: "form-control", required: true %>
+      <em>Enter the amount in dollars (e.g., 25.50)</em>
+    </div>
+
+    <div class="form-actions">
+      <%= form.submit "Submit Bill", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>
+
+<div class="action-buttons">
+  <%= link_to "Back to My Bills", bills_path, class: "btn btn-secondary" %>
+</div>
+

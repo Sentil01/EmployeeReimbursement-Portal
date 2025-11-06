@@ -1,0 +1,95 @@
+<% content_for :title, "Admin Dashboard" %>
+
+<% if user_signed_in? && is_admin? %>
+  <div class="dashboard-page">
+    <div class="dashboard-header">
+      <h1>Admin Dashboard</h1>
+      <p>Welcome back, <strong><%= current_user.name %></strong></p>
+    </div>
+
+    <div class="dashboard-stats">
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-label">Employees</span>
+          <span class="stat-value"><%= link_to @total_employees, employees_path, class: "stat-link" %></span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Departments</span>
+          <span class="stat-value"><%= link_to @departments_count, departments_path, class: "stat-link" %></span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Total Bills</span>
+          <span class="stat-value"><%= link_to @total_bills, bills_path, class: "stat-link" %></span>
+        </div>
+        <div class="stat-item stat-pending">
+          <span class="stat-label">Pending</span>
+          <span class="stat-value"><%= link_to "#{@pending_bills} ($#{number_with_precision(@total_amount_pending, precision: 2)})", bills_path, class: "stat-link" %></span>
+        </div>
+        <div class="stat-item stat-approved">
+          <span class="stat-label">Approved</span>
+          <span class="stat-value"><%= link_to "#{@approved_bills} ($#{number_with_precision(@total_amount_approved, precision: 2)})", bills_path, class: "stat-link" %></span>
+        </div>
+        <div class="stat-item stat-rejected">
+          <span class="stat-label">Rejected</span>
+          <span class="stat-value"><%= link_to @rejected_bills, bills_path, class: "stat-link" %></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-sections">
+      <div class="dashboard-section">
+        <div class="section-header">
+          <h2>Recent Bills</h2>
+          <%= link_to "View All", bills_path, class: "btn btn-primary btn-sm" %>
+        </div>
+        <% if @recent_bills.any? %>
+          <table class="dashboard-table">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Amount</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @recent_bills.each do |bill| %>
+                <tr>
+                  <td><%= bill.employee.full_name %></td>
+                  <td>$<%= number_with_precision(bill.amount, precision: 2) %></td>
+                  <td><%= bill.bill_type.humanize %></td>
+                  <td>
+                    <span class="status-badge status-<%= bill.status %>">
+                      <%= bill.status.humanize %>
+                    </span>
+                  </td>
+                  <td><%= bill.created_at.strftime("%b %d, %Y") %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        <% else %>
+          <p class="empty-message">No bills found.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <div class="welcome-page">
+    <div class="welcome-content">
+      <h1>Welcome to Employee Reimbursement Portal</h1>
+      
+      <% if user_signed_in? %>
+        <p>Redirecting to your bills...</p>
+        <p><%= link_to "View My Bills", bills_path, class: "btn btn-primary" %></p>
+      <% else %>
+        <p>Please sign in to access the portal.</p>
+        <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem;">
+          <%= link_to "Sign In", new_user_session_path, class: "btn btn-primary" %>
+          <%= link_to "Sign Up", new_user_registration_path, class: "btn btn-secondary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

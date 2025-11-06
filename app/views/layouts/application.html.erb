@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Employee Reimbursement Portal" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-brand">
+          <%= link_to "Reimbursement Portal", root_path, class: "nav-brand-link" %>
+        </div>
+        <div class="nav-menu">
+          <% if user_signed_in? %>
+            <div class="nav-links">
+              <% if is_admin? %>
+                <%= link_to "Dashboard", dashboard_path, class: "nav-link" %>
+                <%= link_to "Employees", employees_path, class: "nav-link" %>
+                <%= link_to "Departments", departments_path, class: "nav-link" %>
+                <%= link_to "Bills", bills_path, class: "nav-link" %>
+              <% else %>
+                <%= link_to "Submit Bill", new_bill_path, class: "nav-link" %>
+                <%= link_to "My Bills", bills_path, class: "nav-link" %>
+              <% end %>
+            </div>
+            <div class="user-menu">
+              <button class="user-menu-button" id="userMenuButton" onclick="toggleUserMenu()">
+                <div class="user-avatar">
+                  <%= current_user.name.first.upcase %>
+                </div>
+                <span class="user-name"><%= current_user.name %></span>
+                <span class="user-role"><%= current_user.role.humanize %></span>
+                <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <div class="user-dropdown" id="userDropdown">
+                <div class="user-dropdown-header">
+                  <div class="user-dropdown-avatar">
+                    <%= current_user.name.first.upcase %>
+                  </div>
+                  <div class="user-dropdown-info">
+                    <div class="user-dropdown-name"><%= current_user.name %></div>
+                    <div class="user-dropdown-email"><%= current_user.email %></div>
+                    <div class="user-dropdown-role"><%= current_user.role.humanize %></div>
+                  </div>
+                </div>
+                <div class="user-dropdown-divider"></div>
+                <%= link_to destroy_user_session_path, data: { turbo_method: :delete }, class: "user-dropdown-item" do %>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M6 14H3C2.44772 14 2 13.5523 2 13V3C2 2.44772 2.44772 2 3 2H6M10 11L14 7M14 7L10 3M14 7H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Sign Out
+                <% end %>
+              </div>
+            </div>
+          <% else %>
+            <div class="nav-links">
+              <%= link_to "Sign In", new_user_session_path, class: "nav-link" %>
+              <%= link_to "Sign Up", new_user_registration_path, class: "nav-link nav-link-secondary" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </nav>
+
+    <script>
+      function toggleUserMenu() {
+        const dropdown = document.getElementById('userDropdown');
+        const button = document.getElementById('userMenuButton');
+        dropdown.classList.toggle('active');
+        button.classList.toggle('active');
+      }
+
+      document.addEventListener('click', function(event) {
+        const button = document.getElementById('userMenuButton');
+        const dropdown = document.getElementById('userDropdown');
+        
+        if (button && dropdown && !button.contains(event.target) && !dropdown.contains(event.target)) {
+          dropdown.classList.remove('active');
+          button.classList.remove('active');
+        }
+      });
+    </script>
+
+    <main class="main-content">
+      <% if notice %>
+        <div class="alert alert-success"><%= notice %></div>
+      <% end %>
+      <% if alert %>
+        <div class="alert alert-danger"><%= alert %></div>
+      <% end %>
+
+      <%= yield %>
+    </main>
+  </body>
+</html>

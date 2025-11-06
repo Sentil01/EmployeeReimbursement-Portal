@@ -1,0 +1,89 @@
+<% content_for :title, is_admin? ? "All Bills" : "My Bills" %>
+
+<div class="page-header">
+  <h1><%= is_admin? ? "All Bills" : "My Bills" %></h1>
+  <% unless is_admin? %>
+    <%= link_to "Submit New Bill", new_bill_path, class: "btn btn-primary" %>
+  <% end %>
+</div>
+
+<div class="bill-summary">
+  <div class="summary-item">
+    <span class="summary-label">Total Submitted</span>
+    <span class="summary-value">$<%= number_with_precision(@total_submitted, precision: 2) %></span>
+  </div>
+  <div class="summary-item summary-approved">
+    <span class="summary-label">Total Approved</span>
+    <span class="summary-value">$<%= number_with_precision(@total_approved, precision: 2) %></span>
+  </div>
+</div>
+
+<% if @bills.any? %>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <% if is_admin? %><th>Employee</th><% end %>
+        <th>Amount</th>
+        <th>Type</th>
+        <th>Status</th>
+        <% if is_admin? %><th>Submitted By</th><% end %>
+        <th>Submitted Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @bills.each do |bill| %>
+        <tr>
+          <% if is_admin? %>
+            <td>
+              <div class="employee-name-cell">
+                <div class="employee-avatar-small">
+                  <%= bill.employee.first_name.first.upcase %>
+                </div>
+                <span><%= bill.employee.full_name %></span>
+              </div>
+            </td>
+          <% end %>
+          <td class="amount-cell">$<%= number_with_precision(bill.amount, precision: 2) %></td>
+          <td>
+            <span class="bill-type-badge bill-type-<%= bill.bill_type %>">
+              <%= bill.bill_type.humanize %>
+            </span>
+          </td>
+          <td>
+            <span class="status-badge status-<%= bill.status %>">
+              <%= bill.status.humanize %>
+            </span>
+          </td>
+          <% if is_admin? %>
+            <td><%= bill.submitted_by || bill.employee.full_name %></td>
+          <% end %>
+          <td><%= bill.created_at.strftime("%b %d, %Y") %><br><span class="time-text"><%= bill.created_at.strftime("%I:%M %p") %></span></td>
+          <td>
+            <div class="action-buttons-inline">
+              <%= link_to "View", bill, class: "action-link" %>
+              <% if is_admin? %>
+                <% if bill.status == 'pending' %>
+                  <%= link_to "Approve", approve_bill_path(bill), data: { turbo_method: :patch }, class: "action-link approve-link" %>
+                  <%= link_to "Reject", reject_bill_path(bill), data: { turbo_method: :patch }, class: "action-link reject-link" %>
+                <% elsif bill.status == 'approved' %>
+                  <%= link_to "Revoke Approval", revoke_approval_bill_path(bill), data: { turbo_method: :patch }, class: "action-link reject-link" %>
+                <% elsif bill.status == 'rejected' %>
+                  <%= link_to "Revoke Rejection", revoke_rejection_bill_path(bill), data: { turbo_method: :patch }, class: "action-link approve-link" %>
+                <% end %>
+              <% end %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <div class="empty-state">
+    <p>No bills found.</p>
+    <% unless is_admin? %>
+      <%= link_to "Submit Your First Bill", new_bill_path, class: "btn btn-primary" %>
+    <% end %>
+  </div>
+<% end %>
+

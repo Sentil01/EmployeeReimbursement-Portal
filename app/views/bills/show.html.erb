@@ -1,0 +1,80 @@
+<% content_for :title, "Bill Details" %>
+
+<div class="page-header">
+  <h1>Bill Details</h1>
+  <div>
+    <span class="status-badge status-<%= @bill.status %>">
+      <%= @bill.status.humanize %>
+    </span>
+  </div>
+</div>
+
+<% if is_admin? %>
+  <div class="detail-section">
+    <h3>Employee Information</h3>
+    <div class="employee-header">
+      <div class="employee-avatar-large">
+        <%= @bill.employee.first_name.first.upcase %>
+      </div>
+      <div class="employee-header-info">
+        <h2><%= @bill.employee.full_name %></h2>
+        <p class="employee-designation"><%= @bill.employee.designation %></p>
+        <p class="employee-email"><%= @bill.employee.email %></p>
+        <span class="department-badge"><%= @bill.employee.department.name %></span>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<div class="detail-section">
+  <h3>Bill Information</h3>
+  <div class="detail-grid">
+    <div class="detail-item">
+      <span class="detail-label">Amount</span>
+      <span class="detail-value amount-large">$<%= number_with_precision(@bill.amount, precision: 2) %></span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Type</span>
+      <span class="detail-value">
+        <span class="bill-type-badge bill-type-<%= @bill.bill_type %>">
+          <%= @bill.bill_type.humanize %>
+        </span>
+      </span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Status</span>
+      <span class="detail-value">
+        <span class="status-badge status-<%= @bill.status %>">
+          <%= @bill.status.humanize %>
+        </span>
+      </span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Submitted By</span>
+      <span class="detail-value"><%= @bill.submitted_by || @bill.employee.full_name %></span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Submitted Date</span>
+      <span class="detail-value"><%= @bill.created_at.strftime("%B %d, %Y") %></span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Submitted Time</span>
+      <span class="detail-value"><%= @bill.created_at.strftime("%I:%M %p") %></span>
+    </div>
+  </div>
+</div>
+
+<div class="action-buttons">
+  <%= link_to "Back to Bills", bills_path, class: "btn btn-secondary" %>
+  <% if is_admin? %>
+    <% if @bill.status == 'pending' %>
+      <%= link_to "Approve Bill", approve_bill_path(@bill), data: { turbo_method: :patch }, class: "btn btn-success" %>
+      <%= link_to "Reject Bill", reject_bill_path(@bill), data: { turbo_method: :patch }, class: "btn btn-danger" %>
+    <% elsif @bill.status == 'approved' %>
+      <%= link_to "Revoke Approval", revoke_approval_bill_path(@bill), data: { turbo_method: :patch }, class: "btn btn-warning" %>
+    <% elsif @bill.status == 'rejected' %>
+      <%= link_to "Revoke Rejection", revoke_rejection_bill_path(@bill), data: { turbo_method: :patch }, class: "btn btn-warning" %>
+    <% end %>
+  <% end %>
+</div>
+

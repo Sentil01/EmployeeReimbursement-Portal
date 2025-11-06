@@ -1,0 +1,107 @@
+<% content_for :title, @employee.full_name %>
+
+<div class="page-header">
+  <h1><%= @employee.full_name %></h1>
+</div>
+
+<div class="detail-section">
+  <div class="employee-header">
+    <div class="employee-avatar-large">
+      <%= @employee.first_name.first.upcase %>
+    </div>
+    <div class="employee-header-info">
+      <h2><%= @employee.full_name %></h2>
+      <p class="employee-designation"><%= @employee.designation %></p>
+      <span class="department-badge"><%= @employee.department.name %></span>
+    </div>
+  </div>
+</div>
+
+<div class="detail-section">
+  <h3>Employee Details</h3>
+  <div class="detail-grid">
+    <div class="detail-item">
+      <span class="detail-label">First Name</span>
+      <span class="detail-value"><%= @employee.first_name %></span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Last Name</span>
+      <span class="detail-value"><%= @employee.last_name %></span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Email</span>
+      <span class="detail-value"><%= @employee.email %></span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Designation</span>
+      <span class="detail-value"><%= @employee.designation %></span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Department</span>
+      <span class="detail-value">
+        <%= link_to @employee.department.name, department_path(@employee.department), class: "action-link" %>
+      </span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Total Bills</span>
+      <span class="detail-value">
+        <%= link_to @employee.bills.count, bills_path, class: "stat-link" %>
+      </span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">User Account</span>
+      <span class="detail-value">
+        <% if @employee.user %>
+          <span class="status-badge status-approved">Active</span>
+        <% else %>
+          <span class="status-badge status-rejected">No Account</span>
+        <% end %>
+      </span>
+    </div>
+  </div>
+</div>
+
+<% if @employee.bills.any? %>
+  <div class="detail-section">
+    <h3>Bills Submitted</h3>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Amount</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th>Submitted Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @employee.bills.order(created_at: :desc).limit(10).each do |bill| %>
+          <tr>
+            <td>$<%= number_with_precision(bill.amount, precision: 2) %></td>
+            <td><%= bill.bill_type.humanize %></td>
+            <td>
+              <span class="status-badge status-<%= bill.status %>">
+                <%= bill.status.humanize %>
+              </span>
+            </td>
+            <td><%= bill.created_at.strftime("%b %d, %Y") %></td>
+            <td>
+              <%= link_to "View", bill_path(bill), class: "action-link" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <% if @employee.bills.count > 10 %>
+      <div class="section-footer">
+        <%= link_to "View All Bills", bills_path, class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+<div class="action-buttons">
+  <%= link_to "Edit Employee", edit_employee_path(@employee), class: "btn btn-primary" %>
+  <%= link_to "Back to Employees", employees_path, class: "btn btn-secondary" %>
+  <%= button_to "Delete Employee", employee_path(@employee), method: :delete, data: { turbo_confirm: "Are you sure? This will also delete all associated bills." }, class: "btn btn-danger" %>
+</div>
