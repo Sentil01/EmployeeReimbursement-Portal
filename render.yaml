@@ -3,6 +3,7 @@ services:
     name: employee-reimbursement-portal
     env: ruby
     plan: free
+    dockerfilePath: ""
     buildCommand: "./bin/render-build.sh"
     startCommand: "bundle exec puma -C config/puma.rb"
     envVars:
